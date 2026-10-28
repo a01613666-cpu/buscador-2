@@ -5,3 +5,4 @@ PALABRA="home"
 CARPETA="."
 
 grep -rl "$PALABRA" "$CARPETA"
+
