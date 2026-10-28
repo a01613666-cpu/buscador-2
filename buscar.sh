@@ -18,4 +18,4 @@ else
     echo "Archivos que contienen la palabra '$PALABRA':"
     echo "$RESULTADOS"
     echo "Total de archivos: $(echo "$RESULTADOS" | wc -l)"
-fi
+fi 
