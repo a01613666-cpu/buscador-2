@@ -1,13 +1,18 @@
 #!/bin/bash
-# Busca la palabra indicada como primer argumento en la carpeta actual
-# Uso: bash nombre_del_programa palabra
+# Busca una palabra en una carpeta
+# Uso: bash nombre_del_programa palabra [carpeta]
 
 if [ $# -lt 1 ]; then
-    echo "Uso: bash $0 palabra"
+    echo "Uso: bash $0 palabra [carpeta]"
     exit 1
 fi
 
 PALABRA="$1"
-CARPETA="."
+CARPETA="${2:-.}"
+
+if [ ! -d "$CARPETA" ]; then
+    echo "Error: la carpeta $CARPETA no existe"
+    exit 1
+fi
 
 grep -rIlF -- "$PALABRA" "$CARPETA" 2>/dev/null
