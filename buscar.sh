@@ -1,0 +1,13 @@
+#!/bin/bash
+# Busca la palabra indicada como primer argumento en la carpeta actual
+# Uso: bash nombre_del_programa palabra
+
+if [ $# -lt 1 ]; then
+    echo "Uso: bash $0 palabra"
+    exit 1
+fi
+
+PALABRA="$1"
+CARPETA="."
+
+grep -rIlF -- "$PALABRA" "$CARPETA" 2>/dev/null
