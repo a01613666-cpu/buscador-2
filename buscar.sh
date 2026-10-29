@@ -1,72 +1,29 @@
 #!/bin/bash
-# Busca una palabra en los archivos de una carpeta
-# Uso: bash nombre_del_programa palabra [carpeta]
-# Sin carpeta, busca en todo el sistema de almacenamiento
+# Busca una palabra o frase en una carpeta y cuenta cuantas veces aparece
+# Uso: bash nombre_del_programa "palabra o frase" carpeta
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-    echo "Uso: bash $0 palabra [carpeta]"
-    echo "Se permiten maximo dos argumentos"
+if [ $# -ne 2 ]; then
+    echo "Uso: bash $0 \"palabra o frase\" carpeta"
+    echo "Se necesitan exactamente dos argumentos"
     exit 1
 fi
 
 PALABRA="$1"
+CARPETA="$2"
 
-if [ -n "$2" ]; then
-    if [ ! -d "$2" ]; then
-        echo "Error: la carpeta $2 no existe"
-        exit 1
-    fi
-    RUTAS=("$2")
-else
-    echo "Sin carpeta: buscando en todo el sistema (puede tardar)..."
-    case "$(uname -s)" in
-        MINGW*|MSYS*) RUTAS=(/[a-z]) ;;
-        *) RUTAS=(/) ;;
-    esac
-fi
-
-RESULTADOS=$(grep -rIlF -- "$PALABRA" "${RUTAS[@]}" 2>/dev/null)
-
-if [ -z "$RESULTADOS" ]; then
-    echo "No se encontro la palabra '$PALABRA'"
-else
-    echo "$RESULTADOS"
-fi
-EOF 
-
-
-cat > "$ARCHIVO" << 'EOF'
-#!/bin/bash
-# Busca una palabra en los archivos de una carpeta
-# Uso: bash nombre_del_programa palabra [carpeta]
-# Sin carpeta, busca en todo el sistema de almacenamiento
-
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-    echo "Uso: bash $0 palabra [carpeta]"
-    echo "Se permiten maximo dos argumentos"
+if [ ! -d "$CARPETA" ]; then
+    echo "Error: la carpeta $CARPETA no existe"
     exit 1
 fi
 
-PALABRA="$1"
+ENCONTRADO=0
 
-if [ -n "$2" ]; then
-    if [ ! -d "$2" ]; then
-        echo "Error: la carpeta $2 no existe"
-        exit 1
-    fi
-    RUTAS=("$2")
-else
-    echo "Sin carpeta: buscando en todo el sistema (puede tardar)..."
-    case "$(uname -s)" in
-        MINGW*|MSYS*) RUTAS=(/[a-z]) ;;
-        *) RUTAS=(/) ;;
-    esac
-fi
+while IFS= read -r ARCHIVO_ENC; do
+    VECES=$(grep -oF -- "$PALABRA" "$ARCHIVO_ENC" | wc -l | tr -d ' ')
+    echo "$ARCHIVO_ENC: $VECES veces"
+    ENCONTRADO=1
+done < <(grep -rIlF --exclude-dir=.git -- "$PALABRA" "$CARPETA" 2>/dev/null)
 
-RESULTADOS=$(grep -rIlF -- "$PALABRA" "${RUTAS[@]}" 2>/dev/null)
-
-if [ -z "$RESULTADOS" ]; then
-    echo "No se encontro la palabra '$PALABRA'"
-else
-    echo "$RESULTADOS"
+if [ $ENCONTRADO -eq 0 ]; then
+    echo "No se encontro '$PALABRA' en $CARPETA"
 fi
